@@ -44,7 +44,7 @@ client.on("ready", () => {
     });
 
     // Stay active
-    var job = new CronJob('* 20 * * * *', function () {
+    var job = new CronJob('0 * * * * *', function () {
         console.log('Keepalive Ping');
     }, null, true, 'America/Los_Angeles');
     job.start();
@@ -59,15 +59,15 @@ client.on('message', message => {
     channelSent = message.channel;
 
     
-    if (message.content.includes("Add")) {
-        channelSent.send("You've been added!");
+    //if (message.content.includes("Add")) {
+    //    channelSent.send("You've been added!");
 
-        var test = new statsModel({
-            userID: message.author.id.toString(),
-            shitCoins: "0"
-        })
-        test.save();
-    }
+    //    var test = new statsModel({
+    //        userID: message.author.id.toString(),
+    //        shitCoins: "0"
+    //    })
+    //    test.save();
+    //}
 });
 
 
