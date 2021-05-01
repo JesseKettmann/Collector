@@ -6,15 +6,24 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 const botID = "838126284843778089";
 
-// MongoDB
-const mongoose = require("mongoose");
-const MongoClient = require('mongodb').MongoClient;
-
 // Cronjob
 const CronJob = require('cron').CronJob;
 
 // Settings
 const prefix = ".c";
+
+// MongoDB
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+// Mongo schemas
+const statsSchema = new Schema({
+    userID: String,
+    shitCoins: String
+})
+const statsModel = mongoose.model("statsCollection", statsSchema);
+
+
 
 // On startup
 client.on("ready", () => {
@@ -50,8 +59,14 @@ client.on('message', message => {
     channelSent = message.channel;
 
     
-    if (message.content.includes("Ping")) {
-        channelSent.send("Pong");
+    if (message.content.includes("Add")) {
+        channelSent.send("You've been added!");
+
+        var test = new statsModel({
+            userID: message.author.id.toString(),
+            shitCoins: "0"
+        })
+        test.save();
     }
 });
 
