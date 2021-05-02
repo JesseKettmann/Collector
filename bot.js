@@ -19,7 +19,7 @@ const prefix = ".c";
 const packsPerDay = 2;
 const maxDailyPacks = 5;
 
-const imageMargin = 20;
+const imageMargin = 17;
 const imageScale = 0.7;
 
 // Builtins
@@ -42,6 +42,10 @@ const statsSchema = new Schema({
 })
 const statsModel = mongoose.model("statsCollection", statsSchema);
 var statsArray = [];
+
+// Additional
+var messages = [];
+
 
 
 
@@ -113,6 +117,45 @@ client.on('message', message => {
         })
     }
 });
+
+
+
+
+// On reaction
+client.on('messageReactionAdd', (reaction, user) => {
+    // Own vote doesn't count
+    if (user == botID) return;
+
+    console.log("reaction");
+
+    // Only listen for numbers
+    var found = false;
+    console.log(reaction.emoji.name);
+    for (var i = 0; i < numberEmotes.length; i++) {
+        console.log("Looking at " + numberEmotes[i]);
+        if (reaction.emoji.name == numberEmotes[i]) {
+            found = true;
+            break;
+        }
+    }
+    if (!found) return;
+
+    console.log("correct emote");
+
+    // Only listen for the last vote
+    //if (reaction.message.id != lastVoteId) return;
+
+    // Only councillors can vote
+    //var member = guild.member(user);
+    //if (!member.roles.cache.some(role => role.id == roleCouncillor)) {
+    //    reaction.message.reactions.resolve(voteFor).users.remove(user.id);
+    //    reaction.message.reactions.resolve(voteAgainst).users.remove(user.id);
+    //    return;
+    //} else {
+    //    if (reaction.emoji.name == voteFor) { reaction.message.reactions.resolve(voteAgainst).users.remove(user.id); }
+    //    if (reaction.emoji.name == voteAgainst) { reaction.message.reactions.resolve(voteFor).users.remove(user.id); }
+    //}
+})
 
 
 
