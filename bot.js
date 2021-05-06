@@ -25,6 +25,8 @@ const imageScale = 0.7;
 // Builtins
 const numberEmotes = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣"];
 
+const tiers = ["bronze", "silver", "gold", "platinum"];
+
 // MongoDB
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
@@ -42,6 +44,15 @@ const statsSchema = new Schema({
 })
 const statsModel = mongoose.model("statsCollection", statsSchema);
 var statsArray = [];
+
+const cardsSchema = new Schema({
+    name: String,
+    series: String,
+    tier: String,
+    image: String
+})
+const cardsModel = mongoose.model("cardsCollection", cardsSchema);
+var cardsArray = [[], [], [], []];
 
 // Additional
 var messages = [];
@@ -96,7 +107,7 @@ client.on('message', message => {
         // Execute
         switch (text) {
             case "embed":
-                Embed(message);
+                OpenPack(message, 0);
                 break;
             case "help":
                 Say("Test");
@@ -209,6 +220,29 @@ function OnStartup() {
     statsModel.find({}).then(function (result) {
         statsArray = result;
     })
+
+    // Load the cards into an array
+    cardsModel.find({}).then(function (result) {
+        for (var i = 0; i < result.length; i++) {
+            cardsArray[result[i].tier].length++;
+            cardsArray[result[i].tier][cardsArray[result[i].tier].length - 1] = result[i];
+        }
+
+        //for (var i = 0; i < cardsArray.length; i++) {
+        //    for (var o = 0; o < cardsArray[i].length; o++) {
+        //        console.log(tiers[i] + ": " + cardsArray[i][o].name);
+        //    }
+        //}
+    })
+
+    // Test
+    //var card = new cardsModel({
+    //    name: "Mario",
+    //    series: "Mario Bros.",
+    //    tier: "0",
+    //    image: "https://i.imgur.com/RuCku1F.png"
+    //});
+    //card.save();
 }
 
 function Say(value) {
@@ -260,13 +294,28 @@ function giveDailies(days) {
     }
 }
 
-// Generate an embed
-function Embed(message) {
-    var images = ["https://i.imgur.com/2hZprJE.png", "https://i.imgur.com/2hZprJE.png", "https://i.imgur.com/2hZprJE.png"];
+// Open a card pack
+function OpenPack(message, pack) {
+
+    // Generate the cards
+    var cards = [];
+    for (var i = 0; i < 3; i++) {
+        cards.length++;
+        cards[cards.length - 1] = RandomCard(RandomTier());
+    }
+
+    // Generate an image
+    images = [];
+    for (var i = 0; i < cards.length; i++) {
+        images.length++;
+        images[images.length - 1] = cards[i].image;
+    }
+
+    // Display the cards
     Combine(images).then(value => {
         const embed = new Discord.MessageEmbed()
             //.setTitle('Some title')
-            .setAuthor(message.guild.member(message.author).nickname + ", your card pack contained the following cards")
+            .setAuthor(message.guild.member(message.author.id).nickname + ", your card pack contained the following cards")
             .setDescription("React within a minute to claim one of them")
             .setColor("#6E46FF")
             .attachFiles(value)
@@ -312,6 +361,26 @@ function Combine(images) {
     })
     //var attachment = new Discord.MessageAttachment(canvas.toBuffer());
     //channelSent.send('', attachment);
+}
+
+// Generate a random tier
+function RandomTier() {
+    var rng = Math.floor(Math.random() * 100);
+    if (rng <= 0)
+        return 3;
+    if (rng <= 5)
+        return 2;
+    if (rng <= 25)
+        return 1;
+    else
+        return 0;
+}
+
+// Generate a random card
+function RandomCard(tier) {
+    var options = cardsArray[tier].length;
+    var rng = Math.floor(Math.random() * options);
+    return cardsArray[tier][rng];
 }
 
 
